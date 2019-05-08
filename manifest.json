@@ -1,0 +1,28 @@
+﻿{
+	"manifest_version": 2,
+	"name": "taobao.com auto order",
+	"version": "0.0.1",
+	"background": { "scripts": ["jquery-2.0.0.min.js", "background.js"] },
+	"page_action": {
+		"default_icon": {
+			"19": "order_19.png",
+			"38": "order_38.png"
+		},
+		"default_title": "taobao.com auto order", // shown in tooltip
+		"default_popup": "popup.html"
+	},
+	"permissions" : ["tabs","http://localhost/"],
+	"content_scripts":[{
+		"matches":[
+			"https://www.tmall.com/*",
+			"https://detail.tmall.com/*",
+			"https://buy.tmall.com/*",
+			"https://cashiergtj.alipay.com/*",
+			"https://member1.taobao.com/*",
+			"http://member1.taobao.com/*",
+			"https://buyertrade.taobao.com/*",
+			"https://login.taobao.com/*"
+		],
+		"js":["jquery-2.0.0.min.js", "content_script.js"]
+	}]
+}

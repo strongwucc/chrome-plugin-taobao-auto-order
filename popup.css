@@ -1,0 +1,16 @@
+﻿body {
+	width: 320px;
+}
+
+#account-form div {
+	margin-top: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+#action {
+	margin-top: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
