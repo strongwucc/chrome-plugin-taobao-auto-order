@@ -182,7 +182,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             $('#TPL_password_1').val(request.password)
             $('#TPL_password_1')[0].dispatchEvent(new Event('input',{ bubbles: true }))
 
-            $('#J_SubmitStatic').click()
+            if ($('#nocaptcha').length > 0 && $('#nocaptcha').css('display') !== 'none') {
+                alert('自动登录失败，需要手动登录')
+            } else {
+                $('#J_SubmitStatic').click()
+            }
         }, 500)
 
     }
