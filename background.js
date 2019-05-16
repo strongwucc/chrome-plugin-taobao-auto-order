@@ -2,6 +2,7 @@
 var addr = '';
 var goods = {};
 var addrEdit = false;
+var logined = true;
 var queryTimer = {};
 var username = '';
 var password = '';
@@ -140,6 +141,10 @@ function checkForValidUrl(tabId, changeInfo, tab) {
 	if(getDomainFromUrl(tab.url).toLowerCase()=="www.tmall.com"){
 		// goods = getGoods()
         chrome.pageAction.show(tabId);
+        sendMessageToContentScript({cmd:'check_login', value:'check login'}, function(response)
+        {
+            console.log('来自content的回复：'+response);
+        });
 	}
     if(getDomainFromUrl(tab.url).toLowerCase()=="detail.tmall.com"){
 
@@ -221,5 +226,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
     if (request.cmd === 'addr_completed') {
         addrEdit = true
+    }
+    if (request.cmd === 'go_login') {
+        logined = false
+    }
+    if (request.cmd === 'logined') {
+        logined = true
     }
 });

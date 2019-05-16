@@ -14,6 +14,19 @@
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
     // console.log(sender.tab ?"from a content script:" + sender.tab.url :"from the extension");
+
+    if(request.cmd == 'check_login'){
+        if($('#login-info .sn-login').length > 0){
+            chrome.runtime.sendMessage({cmd: 'go_login'}, function(response) {
+                console.log('收到来自后台的回复：' + response);
+            });
+        } else {
+            chrome.runtime.sendMessage({cmd: 'logined'}, function(response) {
+                console.log('收到来自后台的回复：' + response);
+            });
+        }
+    }
+
     if(request.cmd == 'buy'){
         setTimeout(function () {
             $('#J_LinkBuy')[0].click()
@@ -148,6 +161,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 										setTimeout(function () {
 										    console.log('执行保存')
                                             $('button.next-btn-primary')[0].click()
+
+                                            setTimeout(function () {
+                                                if ($('div.next-dialog button.next-btn-primary').length > 0) {
+                                                    $('div.next-dialog button.next-btn-primary')[0].click()
+                                                }
+                                            }, 1000)
+
                                         }, 1000)
                                     }, 500)
 
