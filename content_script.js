@@ -134,12 +134,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                                 })
                                 $('li.cndzk-entrance-division-box-title-level:nth-child(4)')[0].click()
                                 setTimeout(function () {
+                                    var finalExist = false
                                     $('li.cndzk-entrance-division-box-content-tag').each(function (tagIndex) {
                                         if($(this).text() === add_4) {
+                                            finalExist = true
                                             $(this).click()
                                             return false
                                         }
                                     })
+
+                                    if(finalExist === false) {
+                                        $('li.cndzk-entrance-division-box-content-tag')[1].click()
+                                    }
 
 									setTimeout(function () {
                                         $('textarea.cndzk-entrance-associate-area-textarea').val(add_5)
