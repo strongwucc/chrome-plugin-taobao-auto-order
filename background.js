@@ -6,6 +6,22 @@ var logined = true;
 var queryTimer = {};
 var username = '';
 var password = '';
+var freshSeconds = 0;
+var freshTimer = {};
+
+function autoFresh(){
+    clearInterval(freshTimer)
+    freshTimer = setInterval(function () {
+        if (freshSeconds >= 1800000) {
+            clearInterval(freshTimer)
+            freshSeconds = 0
+            getCurrentTabId(function (tabId) {
+                chrome.tabs.update(tabId, {url: 'https://shoucang.taobao.com/item_collect.htm'});
+            })
+        }
+        freshSeconds += 1
+    },1000)
+}
 
 function getDomainFromUrl(url){
     var host = "null";
@@ -16,6 +32,14 @@ function getDomainFromUrl(url){
     if(typeof match != "undefined" && null != match)
         host = match[1];
     return host;
+}
+
+function checkAlipay(host){
+    var regex = /^cashier.+\.alipay\.com$/;
+    var match = host.match(regex);
+    if(typeof match != "undefined" && null != match)
+        return true
+    return false
 }
 
 // 获取当前选项卡ID
@@ -58,15 +82,19 @@ function beginTimer() {
         }).done(function(data) {
             if (data.order_id) {
                 clearInterval(queryTimer)
+                clearInterval(freshTimer)
                 goods = data
                 getCurrentTabId(function (tabId) {
                     console.log('gogogogogogo')
                     console.log(tabId)
                     chrome.tabs.update(tabId, {url: 'https://member1.taobao.com/member/fresh/deliver_address.htm'});
                 })
+            } else {
+                autoFresh()
             }
         }).fail(function(jqXHR, textStatus) {
             console.log(textStatus)
+            autoFresh()
         });
     }, 10000)
 }
@@ -174,7 +202,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
         }
 
     }
-    if(getDomainFromUrl(tab.url).toLowerCase()=="cashiergtj.alipay.com"){
+    if(checkAlipay(getDomainFromUrl(tab.url).toLowerCase())){
         getCurrentTabId(function (tabId) {
             chrome.tabs.update(tabId, {url: 'https://buyertrade.taobao.com/trade/itemlist/list_bought_items.htm'});
         })
@@ -199,21 +227,30 @@ function checkForValidUrl(tabId, changeInfo, tab) {
                 }).done(function(data) {
                     console.log(data)
                     addrEdit = false
-                    autoBuyGoods()
+                    setTimeout(function () {
+                        autoBuyGoods()
+                    },10000)
+
                 }).fail(function(jqXHR, textStatus) {
                     console.log(textStatus)
                     addrEdit = false
-                    autoBuyGoods()
+                    setTimeout(function () {
+                        autoBuyGoods()
+                    },10000)
                 });
             }
         });
     }
 
-    if(getDomainFromUrl(tab.url).toLowerCase()=="login.taobao.com"){
+    if(getDomainFromUrl(tab.url).toLowerCase()=="login.taobao.com" || getDomainFromUrl(tab.url).toLowerCase()=="login.tmall.com"){
         sendMessageToContentScript({cmd:'login', username:username, password:password}, function(response)
         {
             console.log('来自content的回复：'+response);
         });
+    }
+
+    if(getDomainFromUrl(tab.url).toLowerCase()=="shoucang.taobao.com"){
+        // autoBuyGoods()
     }
 };
 

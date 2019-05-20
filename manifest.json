@@ -21,7 +21,9 @@
 			"https://member1.taobao.com/*",
 			"http://member1.taobao.com/*",
 			"https://buyertrade.taobao.com/*",
-			"https://login.taobao.com/*"
+			"https://login.taobao.com/*",
+			"https://login.tmall.com/*",
+			"https://shoucang.taobao.com/*"
 		],
 		"js":["jquery-2.0.0.min.js", "content_script.js"]
 	}]
