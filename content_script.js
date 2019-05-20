@@ -216,4 +216,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
         }, 500)
 
     }
+
+    // if (request.cmd == 'alipay') {
+    //     $('#payPassword_rsainput').val('123456')
+    //     $('#payPassword_rsainput')[0].dispatchEvent(new Event('input',{ bubbles: true }))
+    //     $('#J_authSubmit').click()
+    // }
 });

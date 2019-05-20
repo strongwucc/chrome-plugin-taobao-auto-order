@@ -12,7 +12,7 @@ var freshTimer = {};
 function autoFresh(){
     clearInterval(freshTimer)
     freshTimer = setInterval(function () {
-        if (freshSeconds >= 1800000) {
+        if (freshSeconds >= 1800) {
             clearInterval(freshTimer)
             freshSeconds = 0
             getCurrentTabId(function (tabId) {
