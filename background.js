@@ -16,11 +16,22 @@ function autoFresh(){
             clearInterval(freshTimer)
             freshSeconds = 0
             getCurrentTabId(function (tabId) {
-                chrome.tabs.update(tabId, {url: 'https://shoucang.taobao.com/item_collect.htm'});
+                chrome.tabs.update(tabId, {url: 'https://buyertrade.taobao.com/trade/itemlist/list_bought_items.htm?action=itemlist/BoughtQueryAction&event_submit_do_query=1&tabCode=waitConfirm'});
             })
         }
         freshSeconds += 1
     },1000)
+}
+
+function queryDelivery() {
+    var currentUrl = urls.shift()
+    if (currentUrl) {
+        getCurrentTabId(function (tabId) {
+            chrome.tabs.update(tabId, {url: currentUrl});
+        })
+    } else {
+        autoFresh()
+    }
 }
 
 function getDomainFromUrl(url){
@@ -65,7 +76,6 @@ function checkGoodsExist() {
             exist = true
         }
     }).fail(function(jqXHR, textStatus) {
-        console.log(textStatus)
     });
     return exist
 }
@@ -85,25 +95,15 @@ function beginTimer() {
                 clearInterval(freshTimer)
                 goods = data
                 getCurrentTabId(function (tabId) {
-                    console.log('gogogogogogo')
-                    console.log(tabId)
                     chrome.tabs.update(tabId, {url: 'https://member1.taobao.com/member/fresh/deliver_address.htm'});
                 })
             } else {
                 autoFresh()
             }
         }).fail(function(jqXHR, textStatus) {
-            console.log(textStatus)
             autoFresh()
         });
     }, 10000)
-}
-
-function getGoods(){
-	return [
-        {buyUrl: 'https://detail.tmall.com/item.htm?id=592487716061&skuId=4256959879738', addr: '何某某,13800138000,安徽省 池州市 东至县 龙泉镇 林丰村合田组,000000', checked: 0},
-        {buyUrl: 'https://detail.tmall.com/item.htm?id=592487716061&skuId=4256959879742', addr: '解某,13800138000,山西省 运城市 临猗县 猗氏镇 府东街铁路机车配件厂,000000', checked: 0}
-    ];
 }
 
 function autoBuyGoods() {
@@ -115,7 +115,6 @@ function autoBuyGoods() {
         data: JSON.stringify({}),
         dataType: "json"
     }).done(function(data) {
-        console.log(data)
         // 如果有待下单商品，则下单，没有则循环查
         if (data.order_id) {
             goods = data
@@ -167,25 +166,21 @@ function sendMessageToContentScript(message, callback)
 function checkForValidUrl(tabId, changeInfo, tab) {
 
 	if(getDomainFromUrl(tab.url).toLowerCase()=="www.tmall.com"){
-		// goods = getGoods()
         chrome.pageAction.show(tabId);
         sendMessageToContentScript({cmd:'check_login', value:'check login'}, function(response)
         {
-            console.log('来自content的回复：'+response);
         });
 	}
     if(getDomainFromUrl(tab.url).toLowerCase()=="detail.tmall.com"){
 
         sendMessageToContentScript({cmd:'buy', value:'auto buy'}, function(response)
         {
-            console.log('来自content的回复：'+response);
         });
     }
     if(getDomainFromUrl(tab.url).toLowerCase()=="buy.tmall.com"){
 
         sendMessageToContentScript({cmd:'order', value:'auto buy'}, function(response)
         {
-            console.log('来自content的回复：'+response);
         });
     }
     if(getDomainFromUrl(tab.url).toLowerCase()=="member1.taobao.com"){
@@ -193,7 +188,6 @@ function checkForValidUrl(tabId, changeInfo, tab) {
 	    if (addrEdit === false) {
             sendMessageToContentScript({cmd:'addr', value:goods.addr}, function(response)
             {
-                console.log('来自content的回复：'+response);
             });
         } else {
             getCurrentTabId(function (tabId) {
@@ -212,10 +206,9 @@ function checkForValidUrl(tabId, changeInfo, tab) {
         // }, 2000)
     }
 
-    if(getDomainFromUrl(tab.url).toLowerCase()=="buyertrade.taobao.com"){
+    if(tab.url === 'https://buyertrade.taobao.com/trade/itemlist/list_bought_items.htm'){
         sendMessageToContentScript({cmd:'query', value:'auto query'}, function(response)
         {
-            console.log('来自content的回复：'+response);
             if (response) {
                 // TODO 反馈给服务端
                 $.ajax({
@@ -225,14 +218,12 @@ function checkForValidUrl(tabId, changeInfo, tab) {
                     data: JSON.stringify({order_id: goods.order_id, tabao_id: response}),
                     dataType: "json"
                 }).done(function(data) {
-                    console.log(data)
                     addrEdit = false
                     setTimeout(function () {
                         autoBuyGoods()
                     },10000)
 
                 }).fail(function(jqXHR, textStatus) {
-                    console.log(textStatus)
                     addrEdit = false
                     setTimeout(function () {
                         autoBuyGoods()
@@ -242,10 +233,21 @@ function checkForValidUrl(tabId, changeInfo, tab) {
         });
     }
 
+    if(tab.url === 'https://buyertrade.taobao.com/trade/itemlist/list_bought_items.htm?action=itemlist/BoughtQueryAction&event_submit_do_query=1&tabCode=waitConfirm'){
+        sendMessageToContentScript({cmd:'query_order', value:'auto query order'}, function(response)
+        {
+        });
+    }
+
+    if(getDomainFromUrl(tab.url).toLowerCase()=="detail.i56.taobao.com"){
+        sendMessageToContentScript({cmd:'query_delivery', url:tab.url}, function(response)
+        {
+        });
+    }
+
     if(getDomainFromUrl(tab.url).toLowerCase()=="login.taobao.com" || getDomainFromUrl(tab.url).toLowerCase()=="login.tmall.com"){
         sendMessageToContentScript({cmd:'login', username:username, password:password}, function(response)
         {
-            console.log('来自content的回复：'+response);
         });
     }
 
@@ -258,11 +260,32 @@ chrome.tabs.onUpdated.addListener(checkForValidUrl);
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
-    console.log('收到来自content-script的消息：');
-    console.log(request, sender, sendResponse);
     sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
     if (request.cmd === 'addr_completed') {
         addrEdit = true
+    }
+
+    if(request.cmd == 'order_information'){
+        urls = request.urls
+        queryDelivery()
+    }
+
+    if(request.cmd == "delivery_information"){
+        if(!request.error){
+            $.ajax({
+                url: "http://116.62.116.155:81/shopmall/plugins/delivery.php",
+                cache: false,
+                type: "POST",
+                data: JSON.stringify({tabao_id:request.orderId,logi_id:request.deliveryNo,logi_name:request.deliveryName}),
+                dataType: "json"
+            }).done(function(msg) {
+                queryDelivery();
+            }).fail(function(jqXHR, textStatus) {
+                queryDelivery();
+            });
+        }else{
+            queryDelivery();
+        }
     }
     if (request.cmd === 'go_login') {
         logined = false
