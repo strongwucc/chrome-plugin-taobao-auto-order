@@ -8,6 +8,7 @@ var username = '';
 var password = '';
 var freshSeconds = 0;
 var freshTimer = {};
+var sending = false;
 
 function autoFresh(){
     clearInterval(freshTimer)
@@ -78,6 +79,31 @@ function checkGoodsExist() {
     }).fail(function(jqXHR, textStatus) {
     });
     return exist
+}
+
+function sendMessage(){
+
+    if(sending){
+        return false
+    }
+
+    sending = true
+
+    $.ajax({
+        url: "http://116.62.116.155:81/shopmall/plugins/sendMsg.php",
+        cache: false,
+        type: "POST",
+        data: JSON.stringify({}),
+        dataType: "json"
+    }).done(function(msg) {
+        setTimeout(function () {
+            sending = false
+        },2000)
+    }).fail(function(jqXHR, textStatus) {
+        setTimeout(function () {
+            sending = false
+        },2000)
+    })
 }
 
 // 开启检查待下单商品时钟
@@ -246,6 +272,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
     }
 
     if(getDomainFromUrl(tab.url).toLowerCase()=="login.taobao.com" || getDomainFromUrl(tab.url).toLowerCase()=="login.tmall.com"){
+        sendMessage()
         sendMessageToContentScript({cmd:'login', username:username, password:password}, function(response)
         {
         });
