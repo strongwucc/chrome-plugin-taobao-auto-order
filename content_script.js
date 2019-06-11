@@ -199,25 +199,25 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 
     if (request.cmd == 'login'){
 
-        alert('登录超时，需要手动登录')
+        // alert('登录超时，需要手动登录')
 
-        // if ($('#J_Quick2Static').length > 0) {
-        //     $('#J_Quick2Static').click()
-        // }
-        //
-        // setTimeout(function () {
-        //     $('#TPL_username_1').val(request.username)
-        //     $('#TPL_username_1')[0].dispatchEvent(new Event('input',{ bubbles: true }))
-        //
-        //     $('#TPL_password_1').val(request.password)
-        //     $('#TPL_password_1')[0].dispatchEvent(new Event('input',{ bubbles: true }))
-        //
-        //     if ($('#nocaptcha').length > 0 && $('#nocaptcha').css('display') !== 'none') {
-        //         alert('自动登录失败，需要手动登录')
-        //     } else {
-        //         $('#J_SubmitStatic').click()
-        //     }
-        // }, 500)
+        if ($('#J_Quick2Static').length > 0) {
+            $('#J_Quick2Static').click()
+        }
+
+        setTimeout(function () {
+            $('#TPL_username_1').val(request.username)
+            $('#TPL_username_1')[0].dispatchEvent(new Event('input',{ bubbles: true }))
+
+            $('#TPL_password_1').val(request.password)
+            $('#TPL_password_1')[0].dispatchEvent(new Event('input',{ bubbles: true }))
+
+            if ($('#nocaptcha').length > 0 && $('#nocaptcha').css('display') !== 'none') {
+                alert('自动登录失败，需要手动登录')
+            } else {
+                $('#J_SubmitStatic').click()
+            }
+        }, 500)
 
     }
 

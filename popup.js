@@ -7,15 +7,18 @@ $('#auto-buy').click(function () {
         return false
     }
 
-	// var username = $('#username').val()
+	var username = $('#username').val()
 	var password = $('#password').val()
+	var pay_password = $('#pay_password').val()
 
-	if (!password) {
-        alert('请输入支付密码')
+	if (!username || !password) {
+        alert('请输入淘宝账号和密码')
         return false
 	}
 
+	bg.username = username
 	bg.password = password
+	bg.pay_password = pay_password
     bg.autoBuyGoods();
 });
 

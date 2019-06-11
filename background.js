@@ -4,8 +4,9 @@ var goods = {};
 var addrEdit = false;
 var logined = true;
 var queryTimer = {};
-var username = '';
-var password = '';
+var username = '浙b8888832953';
+var password = 'shanhuan11';
+var pay_password = '123456';
 var freshSeconds = 0;
 var freshTimer = {};
 var sending = false;
@@ -108,6 +109,7 @@ function sendMessage(){
 
 // 开启检查待下单商品时钟
 function beginTimer() {
+    clearInterval(queryTimer)
     queryTimer = setInterval(function () {
         $.ajax({
             url: "http://116.62.116.155:81/shopmall/plugins/query.php",
